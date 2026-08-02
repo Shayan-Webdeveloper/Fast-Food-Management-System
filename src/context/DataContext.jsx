@@ -18,7 +18,14 @@ const mapOrder = (order) => ({
     const [menu, setMenu] = useState([])
     const [orders, setOrders] = useState([])
     const [notifications, setNotifications] = useState([])
-    const [cart, setCart] = useState([])
+    const [cart, setCart] = useState(() => {
+    try {
+      const saved = localStorage.getItem('foodhub_cart')
+      return saved ? JSON.parse(saved) : []
+    } catch {
+      return []
+    }
+  })
 
     const refreshMenu = useCallback(async () => {
       let query = supabase.from('menu_items').select('*').order('created_at', { ascending: false })
@@ -45,7 +52,13 @@ const mapOrder = (order) => ({
       if (!user) { setOrders([]); setNotifications([]); return }
       refreshData()
     }, [user, refreshData, refreshMenu])
-
+useEffect(() => {
+    try {
+      localStorage.setItem('foodhub_cart', JSON.stringify(cart))
+    } catch {
+      // ignore storage errors (e.g. private browsing quota)
+    }
+  }, [cart])
     const addMenuItem = useCallback(async (item) => {
       const { data, error } = await supabase.from('menu_items').insert({ ...item, available: true, popular: false }).select().single()
       if (error) throw error
