@@ -29,7 +29,7 @@ const pageRef = useRevealAnimation(!!orders)
   if (!isStaff) {
     return (
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Welcome, {user.name.split(' ')[0]}!</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Welcome, {user?.name}!</h1>
         <p className="mt-1 text-slate-500">Ready to order some delicious food?</p>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-3">
