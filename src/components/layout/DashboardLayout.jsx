@@ -166,7 +166,7 @@ export default function DashboardLayout({ children }) {
           )}
         </header>
 
-        <main className="flex-1 overflow-x-hidden p-3 sm:p-4 lg:p-6 dashboard-main">{children}</main>
+        <main className="flex-1 p-3 sm:p-4 lg:p-6 dashboard-main" style={{ overflowX: 'clip' }}>{children}</main>
       </div>
     </div>
   )

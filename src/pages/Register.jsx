@@ -71,8 +71,8 @@ export default function Register() {
           </div>
 
           <form data-auth-animate onSubmit={handleSubmit} className="mt-8 space-y-4">
-            <Input label="Full Name" name="name" value={form.name} onChange={handleChange} placeholder="John Doe" required />
-            <Input label="Email" name="email" type="email" value={form.email} onChange={handleChange} placeholder="you@example.com" required />
+            <Input label="Full Name" name="name" value={form.name} onChange={handleChange} placeholder="Ali Ahmed" required />
+            <Input label="Email" name="email" type="email" value={form.email} onChange={handleChange} placeholder="you@gmail.com" required />
             <Input label="Password" name="password" type="password" value={form.password} onChange={handleChange} placeholder="Min 6 characters" required />
             {/* <div className={`rounded-xl border px-3 py-3 text-sm ${isDark ? 'border-slate-700 bg-slate-900/60 text-slate-300' : 'border-[#eadfd2] bg-white/80 text-slate-600'}`}> */}
               {/* <p className="font-semibold">Customer account</p> */}
