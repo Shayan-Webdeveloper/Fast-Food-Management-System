@@ -6,10 +6,10 @@ import { CustomSelect } from '../../components/ui/CustomSelect'
 import { useRevealAnimation } from '../../hooks/useRevealAnimation'
 
 export default function Settings() {
-  const { user, updateProfile, createStaffAccount, isAdmin } = useAuth()
+  const { user, updateProfile, updateNotificationPreferences, createStaffAccount, isAdmin } = useAuth()
   const pageRef = useRevealAnimation(!!user)
   const [restaurantName, setRestaurantName] = useState(user?.restaurant || 'FoodHub Downtown')
-  const [notifications, setNotifications] = useState({ orders: true, marketing: false, reports: true })
+  const [notifications, setNotifications] = useState(user?.notificationPreferences || { orders: true, marketing: false, reports: true })
   const [saved, setSaved] = useState(false)
   const [staffForm, setStaffForm] = useState({ name: '', email: '', password: '', role: 'manager' })
   const [staffMessage, setStaffMessage] = useState('')
@@ -64,16 +64,20 @@ export default function Settings() {
               { key: 'marketing', label: 'Marketing emails', desc: 'Receive tips and promotional content' },
               { key: 'reports', label: 'Weekly reports', desc: 'Get weekly analytics summary via email' },
             ].map(({ key, label, desc }) => (
-              <label key={key} className="group flex items-center justify-between rounded-lg border border-slate-100 p-3 cursor-pointer hover:bg-brand-50">
+              <label key={key} className="group flex items-center justify-between rounded-lg border border-slate-100 p-3 cursor-pointer transition-colors duration-200 hover:bg-brand-50">
                 <div>
-                  <p className="text-sm font-medium group-hover:!text-slate-900">{label}</p>
-                  <p className="text-xs text-slate-500 group-hover:!text-slate-600">{desc}</p>
+                  <p className="text-sm font-medium transition-colors duration-200 group-hover:!text-slate-900">{label}</p>
+                  <p className="text-xs text-slate-500 transition-colors duration-200 group-hover:!text-slate-600">{desc}</p>
                 </div>
                 <input
                   type="checkbox"
                   checked={notifications[key]}
-                  onChange={(e) => setNotifications({ ...notifications, [key]: e.target.checked })}
-                  className="h-4 w-4 rounded border-slate-300 text-brand-500 focus:ring-brand-500"
+                  onChange={(e) => {
+                    const updated = { ...notifications, [key]: e.target.checked }
+                    setNotifications(updated)
+                    updateNotificationPreferences(updated)
+                  }}
+                  className="h-4 w-4 cursor-pointer rounded border-slate-300 text-brand-500 transition-all duration-200 focus:ring-brand-500"
                 />
               </label>
             ))}

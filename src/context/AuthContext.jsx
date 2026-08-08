@@ -19,6 +19,7 @@ const toAppUser = (authUser, profile) => {
     avatar: effectiveAvatar,
     restaurant: profile?.restaurant,
     joinedAt: profile?.created_at?.slice(0, 10),
+    notificationPreferences: profile?.notification_preferences || { orders: true, marketing: false, reports: true },
   }
 }
 
@@ -161,8 +162,14 @@ export function AuthProvider({ children }) {
     setUser((current) => ({ ...current, name: data.full_name, avatar: data.avatar, restaurant: data.restaurant }))
     return { success: true }
   }, [user])
-
-  return <AuthContext.Provider value={{ user, loading, login, register, logout, createStaffAccount, updateProfile, isAdmin: user?.role === 'admin', isStaff: user?.role === 'admin' || user?.role === 'manager' || user?.role === 'staff' }}>{children}</AuthContext.Provider>
+const updateNotificationPreferences = useCallback(async (preferences) => {
+    if (!user) return { success: false, error: 'Not signed in' }
+    const { data, error } = await supabase.rpc('update_notification_preferences', { prefs: preferences })
+    if (error) return { success: false, error: error.message }
+    setUser((current) => ({ ...current, notificationPreferences: data.notification_preferences }))
+    return { success: true }
+  }, [user])
+  return <AuthContext.Provider value={{ user, loading, login, register, logout, createStaffAccount, updateProfile, updateNotificationPreferences, isAdmin: user?.role === 'admin', isStaff: user?.role === 'admin' || user?.role === 'manager' || user?.role === 'staff' }}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {

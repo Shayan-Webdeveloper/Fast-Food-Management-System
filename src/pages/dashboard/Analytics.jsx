@@ -17,6 +17,27 @@ const ratedOrders = allOrders.filter((o) => o.rating)
 const avgRating = ratedOrders.length
     ? (ratedOrders.reduce((s, o) => s + o.rating, 0) / ratedOrders.length).toFixed(1)
     : 0
+    const now = Date.now()
+  const oneWeek = 7 * 24 * 60 * 60 * 1000
+  const thisWeekOrders = allOrders.filter((o) => o.status !== 'cancelled' && now - new Date(o.createdAt).getTime() <= oneWeek)
+  const lastWeekOrders = allOrders.filter((o) => o.status !== 'cancelled' && now - new Date(o.createdAt).getTime() > oneWeek && now - new Date(o.createdAt).getTime() <= oneWeek * 2)
+
+  const thisWeekRevenue = thisWeekOrders.reduce((s, o) => s + o.total, 0)
+  const lastWeekRevenue = lastWeekOrders.reduce((s, o) => s + o.total, 0)
+  const revenueChange = lastWeekRevenue ? (((thisWeekRevenue - lastWeekRevenue) / lastWeekRevenue) * 100).toFixed(1) : null
+
+  const thisWeekAvgOrder = thisWeekOrders.length ? thisWeekRevenue / thisWeekOrders.length : 0
+  const lastWeekAvgOrder = lastWeekOrders.length ? lastWeekRevenue / lastWeekOrders.length : 0
+  const avgOrderChange = lastWeekAvgOrder ? (((thisWeekAvgOrder - lastWeekAvgOrder) / lastWeekAvgOrder) * 100).toFixed(1) : null
+
+  const thisWeekCompletion = thisWeekOrders.length ? (thisWeekOrders.filter((o) => o.status === 'delivered').length / thisWeekOrders.length) * 100 : 0
+  const lastWeekCompletion = lastWeekOrders.length ? (lastWeekOrders.filter((o) => o.status === 'delivered').length / lastWeekOrders.length) * 100 : 0
+  const completionChange = lastWeekOrders.length ? (thisWeekCompletion - lastWeekCompletion).toFixed(1) : null
+
+  const uniqueCustomers = new Set(allOrders.filter((o) => o.status !== 'cancelled').map((o) => o.customerId)).size
+  const thisWeekCustomers = new Set(thisWeekOrders.map((o) => o.customerId)).size
+  const lastWeekCustomers = new Set(lastWeekOrders.map((o) => o.customerId)).size
+  const customersChange = lastWeekCustomers ? (((thisWeekCustomers - lastWeekCustomers) / lastWeekCustomers) * 100).toFixed(1) : null
     const prepTimes = allOrders
     .filter((o) => o.preparingAt && o.readyAt)
     .map((o) => (new Date(o.readyAt) - new Date(o.preparingAt)) / 60000)
@@ -76,10 +97,34 @@ const categorySales = (() => {
       <p className="mt-1 text-slate-500">Detailed insights into your restaurant performance</p>
 
       <div data-gsap-in="zoom-flip" className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Total Revenue" value={`$${totalRevenue.toFixed(0)}`} change="12.5%" icon={DollarSign} />
-        <StatCard title="Avg Order Value" value={`$${avgOrderValue.toFixed(2)}`} change="3.2%" icon={ShoppingBag} />
-        <StatCard title="Completion Rate" value={`${completionRate}%`} change="1.8%" icon={Star} />
-        <StatCard title="Unique Customers" value="847" change="5.1%" icon={Users} />
+        <StatCard
+          title="Total Revenue"
+          value={`$${totalRevenue.toFixed(0)}`}
+          change={revenueChange === null ? 'No data last week' : `${Math.abs(revenueChange)}%`}
+          trend={revenueChange === null || revenueChange >= 0 ? 'up' : 'down'}
+          icon={DollarSign}
+        />
+        <StatCard
+          title="Avg Order Value"
+          value={`$${avgOrderValue.toFixed(2)}`}
+          change={avgOrderChange === null ? 'No data last week' : `${Math.abs(avgOrderChange)}%`}
+          trend={avgOrderChange === null || avgOrderChange >= 0 ? 'up' : 'down'}
+          icon={ShoppingBag}
+        />
+        <StatCard
+          title="Completion Rate"
+          value={`${completionRate}%`}
+          change={completionChange === null ? 'No data last week' : `${Math.abs(completionChange)} pts`}
+          trend={completionChange === null || completionChange >= 0 ? 'up' : 'down'}
+          icon={Star}
+        />
+        <StatCard
+          title="Unique Customers"
+          value={uniqueCustomers}
+          change={customersChange === null ? 'No data last week' : `${Math.abs(customersChange)}%`}
+          trend={customersChange === null || customersChange >= 0 ? 'up' : 'down'}
+          icon={Users}
+        />
       </div>
 
       <div data-gsap-in="flip-3d" className="mt-6 grid gap-6 lg:grid-cols-2">
