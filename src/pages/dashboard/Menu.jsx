@@ -67,7 +67,7 @@ export default function MenuManagement() {
         )}
       </div>
 
-      <div data-gsap-in="fade" className="mt-6 flex flex-wrap gap-3">
+      <div data-gsap-in="fade" className="relative z-20 mt-6 flex flex-wrap gap-3">
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
