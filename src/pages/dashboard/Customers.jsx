@@ -5,34 +5,44 @@ import { useRevealAnimation } from '../../hooks/useRevealAnimation'
 import { useData } from '../../context/DataContext'
 
 export default function Customers() {
-  const { allOrders } = useData()
+  const { allOrders, customerProfiles, loading } = useData()
   const pageRef = useRevealAnimation(!!allOrders)
   const [search, setSearch] = useState('')
 
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 text-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-brand-200 border-t-brand-500" />
+        <p className="mt-4 text-sm text-slate-500">Loading customers...</p>
+      </div>
+    )
+  }
+
   const customers = (() => {
-    const map = {}
+    const stats = {}
     allOrders.forEach((o) => {
       if (o.status === 'cancelled') return
-      if (!map[o.customerId]) {
-        map[o.customerId] = {
-          id: o.customerId,
-          name: o.customerName,
-          email: o.customerEmail,
-          orders: 0,
-          spent: 0,
-          lastOrder: o.createdAt,
-        }
+      if (!stats[o.customerId]) {
+        stats[o.customerId] = { orders: 0, spent: 0, lastOrder: null }
       }
-      const c = map[o.customerId]
-      c.orders += 1
-      c.spent += o.total
-      if (new Date(o.createdAt) > new Date(c.lastOrder)) c.lastOrder = o.createdAt
+      const s = stats[o.customerId]
+      s.orders += 1
+      s.spent += o.total
+      if (!s.lastOrder || new Date(o.createdAt) > new Date(s.lastOrder)) s.lastOrder = o.createdAt
     })
     const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000
-    return Object.values(map).map((c) => ({
-      ...c,
-      status: new Date(c.lastOrder).getTime() >= thirtyDaysAgo ? 'active' : 'inactive',
-    }))
+    return customerProfiles.map((p) => {
+      const s = stats[p.id] || { orders: 0, spent: 0, lastOrder: null }
+      return {
+        id: p.id,
+        name: p.full_name,
+        email: p.email || '',
+        orders: s.orders,
+        spent: s.spent,
+        lastOrder: s.lastOrder,
+        status: s.lastOrder && new Date(s.lastOrder).getTime() >= thirtyDaysAgo ? 'active' : 'inactive',
+      }
+    })
   })()
 
   const filtered = customers.filter((c) =>
@@ -101,7 +111,7 @@ export default function Customers() {
                     <span className="flex items-center gap-1"><ShoppingBag className="h-3.5 w-3.5" /> {customer.orders}</span>
                   </td>
                   <td className="px-5 py-3 font-semibold">${customer.spent.toFixed(2)}</td>
-                  <td className="px-5 py-3 text-slate-500">{new Date(customer.lastOrder).toLocaleDateString()}</td>
+                  <td className="px-5 py-3 text-slate-500">{customer.lastOrder ? new Date(customer.lastOrder).toLocaleDateString() : 'Never ordered'}</td>
                   <td className="px-5 py-3">
                     <Badge variant={customer.status === 'active' ? 'success' : 'default'}>
                       {customer.status}

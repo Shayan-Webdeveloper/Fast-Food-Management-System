@@ -109,6 +109,9 @@ export function AuthProvider({ children }) {
       },
     })
     if (error) return { success: false, error: error.message }
+    if (data.user && data.user.identities && data.user.identities.length === 0) {
+      return { success: false, error: 'An account with this email already exists.' }
+    }
     if (!data.session) return { success: false, error: 'Check your email to confirm your account, then sign in.' }
     try { await loadProfile(data.user) } catch (profileError) { return { success: false, error: profileError.message } }
     return { success: true }

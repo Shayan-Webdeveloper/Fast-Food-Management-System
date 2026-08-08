@@ -7,20 +7,31 @@ import { Card, Button, Badge, Modal, Input, Select } from '../../components/ui'
 import { foodImage } from '../../utils/foodImages'
 import { CustomSelect } from '../../components/ui/CustomSelect'
 import { useRevealAnimation } from '../../hooks/useRevealAnimation'
+import { useToast } from '../../context/ToastContext'
 
 const CATEGORIES = ['Burgers', 'Wraps', 'Pizza', 'Sides', 'Drinks', 'Appetizers']
 
 const emptyItem = { name: '', category: 'Burgers', price: '', description: '', image: '🍔', available: true }
 
 export default function MenuManagement() {
-  const { menu, addMenuItem, updateMenuItem, deleteMenuItem } = useData()
+  const { menu, addMenuItem, updateMenuItem, deleteMenuItem, loading } = useData()
   const { isAdmin } = useAuth()
+  const { showToast } = useToast()
   const pageRef = useRevealAnimation(!!menu)
   const [search, setSearch] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState(null)
   const [form, setForm] = useState(emptyItem)
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 text-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-brand-200 border-t-brand-500" />
+        <p className="mt-4 text-sm text-slate-500">Loading menu...</p>
+      </div>
+    )
+  }
 
   const filtered = menu.filter((m) => {
     const matchSearch = m.name.toLowerCase().includes(search.toLowerCase())
@@ -116,7 +127,17 @@ export default function MenuManagement() {
                     <button onClick={() => openEdit(item)} className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-brand-500 cursor-pointer">
                       <Pencil className="h-3.5 w-3.5" />
                     </button>
-                    <button onClick={() => deleteMenuItem(item.id)} className="rounded p-1 text-slate-400 hover:bg-red-50 hover:text-red-500 cursor-pointer">
+                    <button
+                      onClick={async () => {
+                        try {
+                          await deleteMenuItem(item.id)
+                          showToast(`${item.name} deleted`)
+                        } catch (error) {
+                          showToast('Could not delete item', 'error')
+                        }
+                      }}
+                      className="rounded p-1 text-slate-400 hover:bg-red-50 hover:text-red-500 cursor-pointer"
+                    >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </div>

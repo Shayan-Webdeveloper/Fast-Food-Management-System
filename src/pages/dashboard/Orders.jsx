@@ -2,15 +2,26 @@ import { useState } from 'react'
 import { useRevealAnimation } from '../../hooks/useRevealAnimation'
 import { Search, Filter } from 'lucide-react'
 import { useData } from '../../context/DataContext'
+import { useToast } from '../../context/ToastContext'
 import { Card, Badge, Select } from '../../components/ui'
 import { CustomSelect } from '../../components/ui/CustomSelect'
 import { ORDER_STATUS_CONFIG } from '../../data/mockData'
 
 export default function Orders() {
-  const { orders, updateOrderStatus, markReturned } = useData()
+  const { orders, updateOrderStatus, markReturned, loading } = useData()
+  const { showToast } = useToast()
   const pageRef = useRevealAnimation(!!orders)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 text-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-brand-200 border-t-brand-500" />
+        <p className="mt-4 text-sm text-slate-500">Loading orders...</p>
+      </div>
+    )
+  }
 
   const filtered = orders.filter((o) => {
     const matchSearch = o.id.toLowerCase().includes(search.toLowerCase()) ||
@@ -118,7 +129,14 @@ export default function Orders() {
                         <span className="text-xs font-medium text-red-500">Returned</span>
                       ) : (
                         <button
-                          onClick={() => markReturned(order.id)}
+                          onClick={async () => {
+                            try {
+                              await markReturned(order.id)
+                              showToast(`Order ${order.id} marked as returned`)
+                            } catch (error) {
+                              showToast('Could not mark order as returned', 'error')
+                            }
+                          }}
                           className="rounded-full border border-slate-200 px-3 py-1 text-xs font-medium text-slate-600 hover:border-red-300 hover:text-red-500 cursor-pointer"
                         >
                           Mark as Returned

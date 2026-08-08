@@ -8,7 +8,7 @@ import { ORDER_STATUS_CONFIG } from '../../data/mockData'
 
 export default function Overview() {
   const { user, isStaff } = useAuth()
-  const { orders, notifications, cart, cartTotal } = useData()
+  const { orders, notifications, cart, cartTotal, customerProfiles, loading } = useData()
 // const pageRef = useRef(null)
 // const animatedRef = useRef(false)
 
@@ -26,6 +26,15 @@ export default function Overview() {
 //   }
 // }, [orders])
 const pageRef = useRevealAnimation(!!orders)
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 text-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-brand-200 border-t-brand-500" />
+        <p className="mt-4 text-sm text-slate-500">Loading your dashboard...</p>
+      </div>
+    )
+  }
+
   if (!isStaff) {
     return (
       <div>
@@ -79,16 +88,11 @@ const pageRef = useRevealAnimation(!!orders)
   const revenueChange = lastWeekRevenue ? (((thisWeekRevenue - lastWeekRevenue) / lastWeekRevenue) * 100).toFixed(1) : null
 
   const ordersChange = lastWeekOrders.length ? (((thisWeekOrders.length - lastWeekOrders.length) / lastWeekOrders.length) * 100).toFixed(1) : null
-  const activeCustomers = new Set(orders.filter((o) => o.status !== 'cancelled').map((o) => o.customerId)).size
+  const totalCustomers = customerProfiles.length
+  const activeCustomerIds = new Set(orders.filter((o) => o.status !== 'cancelled').map((o) => o.customerId))
+  const activeCustomers = activeCustomerIds.size
 
-  const allCustomerFirstOrder = {}
-  orders.filter((o) => o.status !== 'cancelled').forEach((o) => {
-    const t = new Date(o.createdAt).getTime()
-    if (!allCustomerFirstOrder[o.customerId] || t < allCustomerFirstOrder[o.customerId]) {
-      allCustomerFirstOrder[o.customerId] = t
-    }
-  })
-  const newCustomersThisWeek = Object.values(allCustomerFirstOrder).filter((t) => now - t <= oneWeek).length
+  const newCustomersThisWeek = customerProfiles.filter((p) => p.created_at && now - new Date(p.created_at).getTime() <= oneWeek).length
 
   const yesterdayOrders = orders.filter((o) => {
     const d = new Date(o.createdAt)
@@ -142,9 +146,9 @@ const revenueData = (() => {
           icon={Clock}
         />
         <StatCard
-          title="Active Customers"
-          value={activeCustomers}
-          change={`${newCustomersThisWeek} new this week`}
+          title="Total Customers"
+          value={totalCustomers}
+          change={`${activeCustomers} active, ${newCustomersThisWeek} new`}
           trend="up"
           icon={Users}
         />

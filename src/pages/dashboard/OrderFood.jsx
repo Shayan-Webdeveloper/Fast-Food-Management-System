@@ -7,7 +7,7 @@ import { CustomSelect } from '../../components/ui/CustomSelect'
 import { foodImage } from '../../utils/foodImages'
 
 export default function OrderFood() {
-  const { menu, cart, cartTotal, addToCart, updateCartQty, removeFromCart, placeOrder } = useData()
+  const { menu, cart, cartTotal, addToCart, updateCartQty, removeFromCart, placeOrder, loading } = useData()
   const [categories_selected, setCategoriesSelected] = useState([])
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState('featured')
@@ -48,6 +48,15 @@ export default function OrderFood() {
     } catch (error) {
       console.error('Unable to place order', error)
     }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 text-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-brand-200 border-t-brand-500" />
+        <p className="mt-4 text-sm text-slate-500">Loading menu...</p>
+      </div>
+    )
   }
 
   if (orderPlaced) {

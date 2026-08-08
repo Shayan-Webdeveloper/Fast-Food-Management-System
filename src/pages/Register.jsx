@@ -4,6 +4,7 @@ import { gsap } from 'gsap'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 import { Button, Input, ThemeToggle } from '../components/ui'
+import { friendlyError } from '../utils/errorMessages'
 
 export default function Register() {
   const { register } = useAuth()
@@ -32,7 +33,7 @@ export default function Register() {
     if (result.success) {
       navigate('/dashboard')
     } else {
-      setError(result.error)
+      setError(friendlyError(result.error))
     }
     setLoading(false)
   }

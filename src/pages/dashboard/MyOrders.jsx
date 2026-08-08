@@ -6,9 +6,18 @@ import { ORDER_STATUS_CONFIG } from '../../data/mockData'
 import { ShoppingBag } from 'lucide-react'
 
 export default function MyOrders() {
-  const { orders, submitRating } = useData()
+  const { orders, submitRating, loading } = useData()
 const [hovered, setHovered] = useState({})
 const [pending, setPending] = useState({})
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 text-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-brand-200 border-t-brand-500" />
+        <p className="mt-4 text-sm text-slate-500">Loading your orders...</p>
+      </div>
+    )
+  }
 
   return (
     <div>

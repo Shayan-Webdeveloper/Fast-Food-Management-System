@@ -6,6 +6,7 @@ import { animateOnScroll, animatePageIn } from './lib/gsap'
 import { AuthProvider } from './context/AuthContext'
 import { DataProvider } from './context/DataContext'
 import { ThemeProvider } from './context/ThemeContext'
+import { ToastProvider } from './context/ToastContext'
 import { ProtectedRoute, PublicRoute } from './components/auth/ProtectedRoute'
 import DashboardLayout from './components/layout/DashboardLayout'
 
@@ -113,11 +114,13 @@ export default function App() {
   return (
     <BrowserRouter>
       <ThemeProvider>
+      <ToastProvider>
       <AuthProvider>
         <DataProvider>
         <AppShell />
         </DataProvider>
       </AuthProvider>
+      </ToastProvider>
       </ThemeProvider>
     </BrowserRouter>
   )

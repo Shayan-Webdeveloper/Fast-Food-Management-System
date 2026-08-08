@@ -4,6 +4,7 @@ import { gsap } from 'gsap'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 import { Button, Input, ThemeToggle } from '../components/ui'
+import { friendlyError } from '../utils/errorMessages'
 
 export default function Login() {
   const { login } = useAuth()
@@ -28,7 +29,7 @@ export default function Login() {
     if (result.success) {
       navigate(from, { replace: true })
     } else {
-      setError(result.error)
+      setError(friendlyError(result.error))
     }
     setLoading(false)
   }

@@ -18,6 +18,7 @@ const mapOrder = (order) => ({
     const [menu, setMenu] = useState([])
     const [orders, setOrders] = useState([])
     const [notifications, setNotifications] = useState([])
+    const [loading, setLoading] = useState(true)
     const [cart, setCart] = useState(() => {
     try {
       const saved = localStorage.getItem('foodhub_cart')
@@ -35,22 +36,30 @@ const mapOrder = (order) => ({
       setMenu(data.map(mapMenu))
     }, [user])
 
-    const refreshData = useCallback(async () => {
-      if (!user) return
-      const [orderResult, notificationResult] = await Promise.all([
-        supabase.from('orders').select('*, profiles!orders_customer_id_fkey(full_name, email), order_items(quantity, unit_price, menu_items(id, name))').order('created_at', { ascending: false }),
-        supabase.from('notifications').select('*').order('created_at', { ascending: false }),
-      ])
-      const error = orderResult.error || notificationResult.error
-      if (error) { console.error('Unable to load data', error); return }
-      setOrders(orderResult.data.map(mapOrder))
-      setNotifications(notificationResult.data)
-    }, [user])
+const [customerProfiles, setCustomerProfiles] = useState([])
+
+  const refreshData = useCallback(async () => {
+    if (!user) return
+    const [orderResult, notificationResult, profileResult] = await Promise.all([
+      supabase.from('orders').select('*, profiles!orders_customer_id_fkey(full_name, email), order_items(quantity, unit_price, menu_items(id, name))').order('created_at', { ascending: false }),
+      supabase.from('notifications').select('*').order('created_at', { ascending: false }),
+      supabase.from('profiles').select('id, full_name, email, created_at').eq('role', 'customer').order('created_at', { ascending: false }),
+    ])
+    const error = orderResult.error || notificationResult.error || profileResult.error
+    if (error) { console.error('Unable to load data', error); return }
+    setOrders(orderResult.data.map(mapOrder))
+    setNotifications(notificationResult.data)
+    setCustomerProfiles(profileResult.data)
+  }, [user])
 
     useEffect(() => {
-      refreshMenu()
-      if (!user) { setOrders([]); setNotifications([]); return }
-      refreshData()
+      setLoading(true)
+      const load = async () => {
+        await refreshMenu()
+        if (!user) { setOrders([]); setNotifications([]) } else { await refreshData() }
+        setLoading(false)
+      }
+      load()
     }, [user, refreshData, refreshMenu])
 useEffect(() => {
     try {
@@ -120,7 +129,7 @@ useEffect(() => {
     }, [user])
     const cartTotal = cart.reduce((total, item) => total + Number(item.price) * item.qty, 0)
 
-    return <DataContext.Provider value={{ menu, orders, allOrders: orders, notifications, cart, cartTotal, addMenuItem, updateMenuItem, deleteMenuItem, updateOrderStatus, submitRating, markReturned, placeOrder, addToCart, removeFromCart, updateCartQty, clearCart: () => setCart([]), markNotificationRead, markAllNotificationsRead }}>{children}</DataContext.Provider>
+    return <DataContext.Provider value={{ menu, orders, allOrders: orders, notifications, cart, cartTotal, loading, customerProfiles, addMenuItem, updateMenuItem, deleteMenuItem, updateOrderStatus, submitRating, markReturned, placeOrder, addToCart, removeFromCart, updateCartQty, clearCart: () => setCart([]), markNotificationRead, markAllNotificationsRead }}>{children}</DataContext.Provider>
   }
 
   export function useData() { const ctx = useContext(DataContext); if (!ctx) throw new Error('useData must be used within DataProvider'); return ctx }

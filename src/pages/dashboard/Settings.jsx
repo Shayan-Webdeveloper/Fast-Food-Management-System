@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { Bell, Shield, Store, UserPlus } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
+import { useToast } from '../../context/ToastContext'
 import { Card, Button, Input, Badge } from '../../components/ui'
 import { CustomSelect } from '../../components/ui/CustomSelect'
 import { useRevealAnimation } from '../../hooks/useRevealAnimation'
 
 export default function Settings() {
   const { user, updateProfile, updateNotificationPreferences, createStaffAccount, isAdmin } = useAuth()
+  const { showToast } = useToast()
   const pageRef = useRevealAnimation(!!user)
   const [restaurantName, setRestaurantName] = useState(user?.restaurant || 'FoodHub Downtown')
   const [notifications, setNotifications] = useState(user?.notificationPreferences || { orders: true, marketing: false, reports: true })
@@ -26,9 +28,11 @@ export default function Settings() {
     const result = await createStaffAccount(staffForm)
     if (result.success) {
       setStaffMessage(result.message)
+      showToast(`${staffForm.role.charAt(0).toUpperCase() + staffForm.role.slice(1)} account created`)
       setStaffForm({ name: '', email: '', password: '', role: 'manager' })
     } else {
       setStaffMessage(result.error)
+      showToast('Could not create account', 'error')
     }
   }
 
