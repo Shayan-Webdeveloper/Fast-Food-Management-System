@@ -65,9 +65,9 @@ create table if not exists public.notifications (
   created_at timestamptz not null default now()
 );
 
-create index orders_customer_id_created_at_idx on public.orders(customer_id, created_at desc);
-create index order_items_order_id_idx on public.order_items(order_id);
-create index notifications_user_id_created_at_idx on public.notifications(user_id, created_at desc);
+create index if not exists orders_customer_id_created_at_idx on public.orders(customer_id, created_at desc);
+create index if not exists order_items_order_id_idx on public.order_items(order_id);
+create index if not exists notifications_user_id_created_at_idx on public.notifications(user_id, created_at desc);
 
 create or replace function public.set_updated_at()
 returns trigger language plpgsql as $$ begin new.updated_at = now(); return new; end $$;
