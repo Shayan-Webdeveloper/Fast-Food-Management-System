@@ -6,7 +6,12 @@ begin
     create type public.user_role as enum ('admin', 'manager', 'customer');
   end if;
 end $$;
-create type public.order_status as enum ('pending', 'preparing', 'ready', 'delivered', 'cancelled');
+do $$
+begin
+  if not exists (select 1 from pg_type where typname = 'order_status') then
+    create type public.order_status as enum ('pending', 'preparing', 'ready', 'delivered', 'cancelled');
+  end if;
+end $$;
 
 create table public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
