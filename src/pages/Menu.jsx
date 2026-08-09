@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Plus, ShoppingBag, Search } from "lucide-react";
+import { Plus, ShoppingBag, Search, SlidersHorizontal, X } from "lucide-react";
 import { useData } from "../context/DataContext";
 import { Button } from "../components/ui";
 import { foodImage } from "../utils/foodImages";
@@ -17,6 +17,17 @@ export default function MenuPage() {
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [popularOnly, setPopularOnly] = useState(false);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [drawerVisible, setDrawerVisible] = useState(false);
+
+  useEffect(() => {
+    if (mobileFiltersOpen) {
+      const timer = requestAnimationFrame(() => setDrawerVisible(true));
+      return () => cancelAnimationFrame(timer);
+    } else {
+      setDrawerVisible(false);
+    }
+  }, [mobileFiltersOpen]);
   const pageRef = useRevealAnimation(!!menu);
   const categories = [...new Set(menu.map((item) => item.category))];
   let items =
@@ -63,11 +74,36 @@ export default function MenuPage() {
         </p>
       </div>
 
+      <div className="mt-6 lg:hidden">
+        <button
+          onClick={() => setMobileFiltersOpen(true)}
+          className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-[#e5d6c6] bg-white py-2.5 text-sm font-bold text-stone-700"
+        >
+          <SlidersHorizontal className="h-4 w-4" />
+          Filters {(categories_selected.length > 0 || minPrice !== "" || maxPrice !== "" || popularOnly) && `(${categories_selected.length + (minPrice !== "" ? 1 : 0) + (maxPrice !== "" ? 1 : 0) + (popularOnly ? 1 : 0)})`}
+        </button>
+      </div>
+
       <div className="mt-8 grid gap-8 lg:grid-cols-[240px_1fr]">
+        {mobileFiltersOpen && (
+          <div className="fixed inset-0 z-50 lg:hidden">
+            <div
+              className={`absolute inset-0 bg-black/40 transition-opacity duration-300 ${drawerVisible ? 'opacity-100' : 'opacity-0'}`}
+              onClick={() => { setDrawerVisible(false); setTimeout(() => setMobileFiltersOpen(false), 300); }}
+            />
+            <div
+              className={`absolute inset-y-0 left-0 w-full max-w-xs overflow-y-auto bg-white transition-transform duration-300 ease-out ${drawerVisible ? 'translate-x-0' : '-translate-x-full'}`}
+            >
+              <div className="flex items-center justify-between border-b border-[#eadfd2] p-4">
+                <p className="font-bold text-stone-900">Filters</p>
+                <button onClick={() => { setDrawerVisible(false); setTimeout(() => setMobileFiltersOpen(false), 300); }} className="cursor-pointer text-stone-500">
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
         {/* Fixed left filter sidebar */}
         <aside
           data-gsap-in="slide-left"
-          className="lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-8rem)] overflow-hidden rounded-2xl border border-[#eadfd2] bg-white shadow-sm"
+          className="block lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-8rem)] overflow-hidden rounded-2xl border border-[#eadfd2] bg-white shadow-sm lg:shadow-sm shadow-none lg:border lg:border-[#eadfd2] border-none"
         >
           <div className="p-5 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto">
             <div className="relative">
@@ -229,6 +265,9 @@ export default function MenuPage() {
 
             </div>
         </aside>
+            </div>
+          </div>
+        )}
 
         {/* Items grid */}
         <div>

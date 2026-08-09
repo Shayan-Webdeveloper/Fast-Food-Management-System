@@ -13,6 +13,8 @@ import DashboardLayout from './components/layout/DashboardLayout'
 import Landing from './pages/Landing'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
 import Overview from './pages/dashboard/Overview'
 import Orders from './pages/dashboard/Orders'
 import MenuManagement from './pages/dashboard/Menu'
@@ -94,6 +96,8 @@ function AppRoutes() {
       <Route path="/checkout" element={<RestaurantLayout><Checkout /></RestaurantLayout>} />
       <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
       <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+      <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
+      <Route path="/reset-password" element={<ResetPassword />} />
 
       <Route path="/dashboard" element={<DashboardWrapper><Overview /></DashboardWrapper>} />
       <Route path="/dashboard/orders" element={<DashboardWrapper><Orders /></DashboardWrapper>} />

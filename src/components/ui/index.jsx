@@ -1,5 +1,6 @@
+import { useState } from 'react'
 import clsx from 'clsx'
-import { Moon, Sun } from 'lucide-react'
+import { Moon, Sun, Eye, EyeOff } from 'lucide-react'
 import { useTheme } from '../../context/ThemeContext'
 
 export function Button({ children, variant = 'primary', size = 'md', className, disabled, ...props }) {
@@ -55,18 +56,36 @@ export function ThemeToggle({ className }) {
   )
 }
 
-export function Input({ label, error, className, ...props }) {
+export function Input({ label, error, className, type, ...props }) {
+  const [showPassword, setShowPassword] = useState(false)
+  const isPassword = type === 'password'
+  const inputType = isPassword ? (showPassword ? 'text' : 'password') : type
+
   return (
     <div className="space-y-1.5">
       {label && <label className="block text-sm font-medium text-slate-700">{label}</label>}
-      <input
-        className={clsx(
-          'w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20',
-          error && 'border-red-400 focus:border-red-400 focus:ring-red-400/20',
-          className
+      <div className="relative">
+        <input
+          type={inputType}
+          className={clsx(
+            'w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20',
+            isPassword && 'pr-10',
+            error && 'border-red-400 focus:border-red-400 focus:ring-red-400/20',
+            className
+          )}
+          {...props}
+        />
+        {isPassword && (
+          <button
+            type="button"
+            onClick={() => setShowPassword((s) => !s)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-slate-400 hover:text-slate-600"
+            tabIndex={-1}
+          >
+            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
         )}
-        {...props}
-      />
+      </div>
       {error && <p className="text-xs text-red-500">{error}</p>}
     </div>
   )

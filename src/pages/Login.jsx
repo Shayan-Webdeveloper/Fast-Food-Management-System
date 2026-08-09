@@ -85,6 +85,9 @@ export default function Login() {
             Don't have an account?{' '}
             <Link to="/register" className="font-medium text-brand-500 hover:text-brand-600">Create one</Link>
           </p>
+          <p data-auth-animate className="mt-2 text-center text-sm">
+            <Link to="/forgot-password" className={`font-medium text-brand-500 hover:text-brand-600`}>Forgot password?</Link>
+          </p>
           <p data-auth-animate className="mt-2 text-center">
             <Link to="/" className={`text-sm ${isDark ? 'text-slate-400 hover:text-slate-300' : 'text-slate-400 hover:text-slate-600'}`}>← Back to home</Link>
           </p>
