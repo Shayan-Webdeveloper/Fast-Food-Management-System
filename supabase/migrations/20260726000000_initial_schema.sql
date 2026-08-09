@@ -1,6 +1,11 @@
 create extension if not exists pgcrypto;
 
-create type public.user_role as enum ('admin', 'manager', 'customer');
+do $$
+begin
+  if not exists (select 1 from pg_type where typname = 'user_role') then
+    create type public.user_role as enum ('admin', 'manager', 'customer');
+  end if;
+end $$;
 create type public.order_status as enum ('pending', 'preparing', 'ready', 'delivered', 'cancelled');
 
 create table public.profiles (
