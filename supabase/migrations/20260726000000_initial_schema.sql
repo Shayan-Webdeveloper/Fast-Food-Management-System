@@ -71,8 +71,11 @@ create index if not exists notifications_user_id_created_at_idx on public.notifi
 
 create or replace function public.set_updated_at()
 returns trigger language plpgsql as $$ begin new.updated_at = now(); return new; end $$;
+drop trigger if exists profiles_updated_at on public.profiles;
 create trigger profiles_updated_at before update on public.profiles for each row execute function public.set_updated_at();
+drop trigger if exists menu_items_updated_at on public.menu_items;
 create trigger menu_items_updated_at before update on public.menu_items for each row execute function public.set_updated_at();
+drop trigger if exists orders_updated_at on public.orders;
 create trigger orders_updated_at before update on public.orders for each row execute function public.set_updated_at();
 
 -- Signup metadata contains only the display name. Every public signup is a customer.
@@ -85,6 +88,7 @@ begin
   return new;
 end;
 $$;
+drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created after insert on auth.users for each row execute procedure public.handle_new_user();
 
 create or replace function public.is_staff()
