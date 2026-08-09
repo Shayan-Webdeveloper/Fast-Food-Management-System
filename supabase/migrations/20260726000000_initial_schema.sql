@@ -13,7 +13,7 @@ begin
   end if;
 end $$;
 
-create table public.profiles (
+create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   full_name text not null,
   role public.user_role not null default 'customer',
@@ -23,7 +23,7 @@ create table public.profiles (
   updated_at timestamptz not null default now()
 );
 
-create table public.menu_items (
+create table if not exists public.menu_items (
   id uuid primary key default gen_random_uuid(),
   name text not null,
   category text not null,
@@ -36,7 +36,7 @@ create table public.menu_items (
   updated_at timestamptz not null default now()
 );
 
-create table public.orders (
+create table if not exists public.orders (
   id uuid primary key default gen_random_uuid(),
   order_number text not null unique default ('ORD-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 8))),
   customer_id uuid not null references public.profiles(id),
@@ -47,7 +47,7 @@ create table public.orders (
   updated_at timestamptz not null default now()
 );
 
-create table public.order_items (
+create table if not exists public.order_items (
   id uuid primary key default gen_random_uuid(),
   order_id uuid not null references public.orders(id) on delete cascade,
   menu_item_id uuid not null references public.menu_items(id),
@@ -55,7 +55,7 @@ create table public.order_items (
   unit_price numeric(10,2) not null check (unit_price >= 0)
 );
 
-create table public.notifications (
+create table if not exists public.notifications (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.profiles(id) on delete cascade,
   title text not null,
