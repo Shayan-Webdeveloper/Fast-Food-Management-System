@@ -20,6 +20,7 @@ import Analytics from './pages/dashboard/Analytics'
 import Customers from './pages/dashboard/Customers'
 import Settings from './pages/dashboard/Settings'
 import OrderFood from './pages/dashboard/OrderFood'
+import DashboardCheckout from './pages/dashboard/DashboardCheckout'
 import MyOrders from './pages/dashboard/MyOrders'
 import Profile from './pages/dashboard/Profile'
 import RestaurantLayout from './components/layout/RestaurantLayout'
@@ -101,6 +102,7 @@ function AppRoutes() {
       <Route path="/dashboard/customers" element={<DashboardWrapper roles={['admin']}><Customers /></DashboardWrapper>} />
       <Route path="/dashboard/settings" element={<DashboardWrapper><Settings /></DashboardWrapper>} />
       <Route path="/dashboard/order" element={<DashboardWrapper><OrderFood /></DashboardWrapper>} />
+      <Route path="/dashboard/checkout" element={<DashboardWrapper><DashboardCheckout /></DashboardWrapper>} />
       <Route path="/dashboard/my-orders" element={<DashboardWrapper><MyOrders /></DashboardWrapper>} />
       <Route path="/dashboard/profile" element={<DashboardWrapper><Profile /></DashboardWrapper>} />
 

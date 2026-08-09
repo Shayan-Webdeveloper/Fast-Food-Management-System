@@ -123,7 +123,7 @@ export default function DashboardLayout({ children }) {
         </div>
       </aside>
 
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col min-w-0">
         <header className={`sticky top-0 z-30 flex h-16 items-center gap-4 border-b px-4 backdrop-blur-xl lg:px-6 ${isDark ? 'border-slate-700 bg-slate-900/70' : 'border-slate-200 bg-white/80'}`}>
           <button className={`lg:hidden cursor-pointer ${isDark ? 'text-slate-300' : 'text-slate-600'}`} onClick={() => setSidebarOpen(true)}>
             <MenuIcon className="h-5 w-5" />

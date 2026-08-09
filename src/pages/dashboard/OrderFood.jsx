@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Plus, Minus, ShoppingCart, CheckCircle, Search } from 'lucide-react'
 import { useData } from '../../context/DataContext'
-import { Card, Button, Badge } from '../../components/ui'
+import { Card, Button, Badge, Modal, Input } from '../../components/ui'
 import { CustomSelect } from '../../components/ui/CustomSelect'
 import { foodImage } from '../../utils/foodImages'
 
 export default function OrderFood() {
+  const navigate = useNavigate()
   const { menu, cart, cartTotal, addToCart, updateCartQty, removeFromCart, placeOrder, loading } = useData()
   const [categories_selected, setCategoriesSelected] = useState([])
   const [search, setSearch] = useState('')
@@ -16,6 +17,10 @@ export default function OrderFood() {
   const [popularOnly, setPopularOnly] = useState(false)
   const [orderPlaced, setOrderPlaced] = useState(null)
   const [revealed, setRevealed] = useState(false)
+  const [showDeliveryForm, setShowDeliveryForm] = useState(false)
+  const [deliveryName, setDeliveryName] = useState('')
+  const [deliveryPhone, setDeliveryPhone] = useState('')
+  const [deliveryAddress, setDeliveryAddress] = useState('')
 
   const available = menu.filter((m) => m.available)
   const categories = [...new Set(available.map((m) => m.category))]
@@ -43,8 +48,12 @@ export default function OrderFood() {
   const handleCheckout = async () => {
     if (cart.length === 0) return
     try {
-      const order = await placeOrder(cart, 'card')
+      const order = await placeOrder(cart, 'card', { name: deliveryName, phone: deliveryPhone, address: deliveryAddress })
       setOrderPlaced({ id: order.order_number, total: Number(order.total) })
+      setShowDeliveryForm(false)
+      setDeliveryName('')
+      setDeliveryPhone('')
+      setDeliveryAddress('')
     } catch (error) {
       console.error('Unable to place order', error)
     }
@@ -245,7 +254,7 @@ export default function OrderFood() {
             </p>
             <p className="font-black">${cartTotal.toFixed(2)}</p>
           </div>
-          <Button className="rounded-xl" onClick={handleCheckout}>
+          <Button className="rounded-xl" onClick={() => navigate('/dashboard/checkout')}>
             <ShoppingCart className="h-4 w-4" />
             Place Order
           </Button>

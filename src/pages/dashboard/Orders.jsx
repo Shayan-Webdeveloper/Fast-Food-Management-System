@@ -73,7 +73,7 @@ export default function Orders() {
         })}
       </div>
 
-      <Card data-gsap-in="blur" data-gsap-delay="0.4" className="mt-6 !p-0 overflow-hidden">
+      <Card data-gsap-in="blur" data-gsap-delay="0.4" className="mt-6 !p-0 overflow-hidden max-w-full">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-slate-50">
@@ -91,18 +91,18 @@ export default function Orders() {
             <tbody>
               {filtered.map((order) => (
                 <tr key={order.id} className="border-t border-slate-100">
-                  <td className="px-5 py-3 font-medium">{order.id}</td>
-                  <td className="px-5 py-3">{order.customerName}</td>
+                  <td className="px-5 py-3 font-medium whitespace-nowrap">{order.id}</td>
+                  <td className="px-5 py-3 whitespace-nowrap">{order.customerName}</td>
                   <td className="px-5 py-3">
-                    <div className="max-w-[200px]">
+                    <div className="min-w-[160px] max-w-[240px] text-xs text-slate-500">
                       {order.items.map((i) => (
-                        <span key={i.id} className="block text-xs text-slate-500">{i.qty}x {i.name}</span>
+                        <span key={i.id} className="block">{i.qty}x {i.name}</span>
                       ))}
                     </div>
                   </td>
                   <td className="px-5 py-3 font-semibold">${order.total.toFixed(2)}</td>
                   <td className="px-5 py-3 capitalize">{order.paymentMethod}</td>
-                  <td className="px-5 py-3 text-slate-500">{new Date(order.createdAt).toLocaleString()}</td>
+                  <td className="px-5 py-3 text-slate-500 whitespace-nowrap">{new Date(order.createdAt).toLocaleString()}</td>
                   <td className="px-5 py-3">
                     <Badge variant={
                       order.status === 'delivered' ? 'success' :
@@ -114,15 +114,12 @@ export default function Orders() {
                   </td>
                   <td className="px-5 py-3">
                     {order.status !== 'delivered' && order.status !== 'cancelled' && (
-                      <Select
+                      <CustomSelect
                         value={order.status}
-                        onChange={(e) => updateOrderStatus(order.id, e.target.value)}
-                        className="!py-1 text-xs"
-                      >
-                        {statuses.map((s) => (
-                          <option key={s} value={s}>{ORDER_STATUS_CONFIG[s].label}</option>
-                        ))}
-                      </Select>
+                        onChange={(value) => updateOrderStatus(order.id, value)}
+                        options={statuses.map((s) => ({ value: s, label: ORDER_STATUS_CONFIG[s].label }))}
+                        className="min-w-[130px]"
+                      />
                     )}
                     {order.status === 'delivered' && (
                       order.returned ? (

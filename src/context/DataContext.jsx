@@ -11,6 +11,7 @@ const mapOrder = (order) => ({
   items: (order.order_items ?? []).map(({ menu_items, quantity, unit_price }) => ({ id: menu_items.id, name: menu_items.name, price: Number(unit_price), qty: quantity })),
   total: Number(order.total), status: order.status, createdAt: order.created_at, paymentMethod: order.payment_method, rating: order.rating,
   preparingAt: order.preparing_at, readyAt: order.ready_at, returned: order.returned,
+  deliveryName: order.delivery_name, deliveryPhone: order.delivery_phone, deliveryAddress: order.delivery_address,
 })
 
   export function DataProvider({ children }) {
@@ -107,12 +108,18 @@ useEffect(() => {
       if (error) throw error
       setOrders((current) => current.map((item) => item.id === orderNumber ? { ...item, rating } : item))
     }, [orders])
-    const placeOrder = useCallback(async (items, paymentMethod = 'card') => {
-      const { data, error } = await supabase.rpc('place_order', { p_items: items.map(({ id, qty }) => ({ menu_item_id: id, quantity: qty })), p_payment_method: paymentMethod })
-      if (error) throw error
-      await refreshData(); setCart([])
-      return data
-    }, [refreshData])
+const placeOrder = useCallback(async (items, paymentMethod = 'card', delivery = {}) => {
+    const { data, error } = await supabase.rpc('place_order', {
+      p_items: items.map(({ id, qty }) => ({ menu_item_id: id, quantity: qty })),
+      p_payment_method: paymentMethod,
+      p_delivery_name: delivery.name || null,
+      p_delivery_phone: delivery.phone || null,
+      p_delivery_address: delivery.address || null,
+    })
+    if (error) throw error
+    await refreshData(); setCart([])
+    return data
+  }, [refreshData])
     const addToCart = useCallback((item) => setCart((current) => {
       const existing = current.find((cartItem) => cartItem.id === item.id)
       return existing ? current.map((cartItem) => cartItem.id === item.id ? { ...cartItem, qty: cartItem.qty + 1 } : cartItem) : [...current, { ...item, qty: 1 }]
