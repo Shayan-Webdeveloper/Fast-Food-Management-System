@@ -280,11 +280,11 @@ export default function MenuPage() {
                 }`}
               >
                 <Link to={`/menu/${item.id}`}>
-                  <img
-                    src={foodImage(item)}
-                    alt={item.name}
-                    className="aspect-[4/3] w-full object-cover"
-                  />
+<img
+                src={item.image_url || foodImage(item)}
+                alt={item.name}
+                className="aspect-[4/3] w-full object-cover"
+              />
                 </Link>
                 <div className="p-5">
                   <div className="flex items-start justify-between gap-3">

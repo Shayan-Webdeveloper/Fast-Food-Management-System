@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Plus, Minus, ShoppingCart, CheckCircle, Search } from 'lucide-react'
+import { Plus, Minus, ShoppingCart, CheckCircle, Search, SlidersHorizontal, X } from 'lucide-react'
 import { useData } from '../../context/DataContext'
 import { Card, Button, Badge, Modal, Input } from '../../components/ui'
 import { CustomSelect } from '../../components/ui/CustomSelect'
@@ -17,6 +17,22 @@ export default function OrderFood() {
   const [popularOnly, setPopularOnly] = useState(false)
   const [orderPlaced, setOrderPlaced] = useState(null)
   const [revealed, setRevealed] = useState(false)
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
+  const [drawerVisible, setDrawerVisible] = useState(false)
+
+  useEffect(() => {
+    if (mobileFiltersOpen) {
+      const timer = requestAnimationFrame(() => setDrawerVisible(true))
+      return () => cancelAnimationFrame(timer)
+    } else {
+      setDrawerVisible(false)
+    }
+  }, [mobileFiltersOpen])
+
+  const closeMobileFilters = () => {
+    setDrawerVisible(false)
+    setTimeout(() => setMobileFiltersOpen(false), 300)
+  }
   const [showDeliveryForm, setShowDeliveryForm] = useState(false)
   const [deliveryName, setDeliveryName] = useState('')
   const [deliveryPhone, setDeliveryPhone] = useState('')
@@ -85,9 +101,34 @@ export default function OrderFood() {
       <h1 className="text-2xl font-bold text-slate-900">Order Food</h1>
       <p className="mt-1 text-slate-500">Browse our menu and add items to your cart</p>
 
+      <div className="mt-6 lg:hidden">
+        <button
+          onClick={() => setMobileFiltersOpen(true)}
+          className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-2.5 text-sm font-bold text-slate-700"
+        >
+          <SlidersHorizontal className="h-4 w-4" />
+          Filters
+        </button>
+      </div>
+
       <div className="mt-6 grid items-start gap-6 lg:grid-cols-[260px_1fr]">
-        <aside className="lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-6rem)] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <div className="p-5 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
+        {mobileFiltersOpen && (
+          <div className="fixed inset-0 z-50 lg:hidden">
+            <div
+              className={`absolute inset-0 bg-black/40 transition-opacity duration-300 ${drawerVisible ? 'opacity-100' : 'opacity-0'}`}
+              onClick={closeMobileFilters}
+            />
+            <div
+              className={`absolute inset-y-0 left-0 w-full max-w-xs overflow-y-auto bg-white transition-transform duration-300 ease-out ${drawerVisible ? 'translate-x-0' : '-translate-x-full'}`}
+            >
+              <div className="flex items-center justify-between border-b border-slate-200 p-4">
+                <p className="font-bold text-slate-900">Filters</p>
+                <button onClick={closeMobileFilters} className="cursor-pointer text-slate-500">
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+        <aside className="hidden lg:block lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-6rem)] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="p-5">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input
@@ -215,7 +256,7 @@ export default function OrderFood() {
             >
               <Link to={`/menu/${item.id}`} className="cursor-pointer">
                 <div className="aspect-[4/3] w-full overflow-hidden bg-gradient-to-br from-brand-50 to-orange-50">
-                  <img src={foodImage(item)} alt={item.name} className="h-full w-full object-cover" />
+                  <img src={item.image_url || foodImage(item)} alt={item.name} className="h-full w-full object-cover" />
                 </div>
               </Link>
               <div className="p-4 flex flex-1 flex-col">

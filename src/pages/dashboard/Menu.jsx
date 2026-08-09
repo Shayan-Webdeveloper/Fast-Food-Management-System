@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Plus, Pencil, Trash2, Search } from 'lucide-react'
 import { useData } from '../../context/DataContext'
+import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import { Card, Button, Badge, Modal, Input, Select } from '../../components/ui'
 import { foodImage } from '../../utils/foodImages'
@@ -23,6 +24,8 @@ export default function MenuManagement() {
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState(null)
   const [form, setForm] = useState(emptyItem)
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [imageError, setImageError] = useState('')
 
   if (loading) {
     return (
@@ -50,7 +53,36 @@ export default function MenuManagement() {
     setForm({ ...item })
     setModalOpen(true)
   }
+const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
 
+    setImageError('')
+
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      setImageError('Please upload a JPG, PNG, or WEBP image.')
+      return
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setImageError('Image must be under 2MB.')
+      return
+    }
+
+    setUploadingImage(true)
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${crypto.randomUUID()}.${fileExt}`
+
+    const { error: uploadError } = await supabase.storage.from('menu-images').upload(fileName, file)
+    if (uploadError) {
+      setImageError('Upload failed. Please try again.')
+      setUploadingImage(false)
+      return
+    }
+
+    const { data } = supabase.storage.from('menu-images').getPublicUrl(fileName)
+    setForm((f) => ({ ...f, image_url: data.publicUrl }))
+    setUploadingImage(false)
+  }
   const handleSave = (e) => {
     e.preventDefault()
     const data = { ...form, price: parseFloat(form.price) }
@@ -100,7 +132,7 @@ export default function MenuManagement() {
           <Card key={item.id} className="!p-0 overflow-hidden flex flex-col h-full">
             <Link to={`/menu/${item.id}`} className="cursor-pointer">
               <div className="h-64 w-full overflow-hidden bg-gradient-to-br from-brand-50 to-orange-50">
-                <img src={foodImage(item)} alt={item.name} className="h-full w-full object-cover" />
+                <img src={item.image_url || foodImage(item)} alt={item.name} className="h-full w-full object-cover" />
               </div>
             </Link>
             <div className="p-4 flex flex-1 flex-col">
@@ -156,7 +188,34 @@ export default function MenuManagement() {
           </Select>
           <Input label="Price ($)" type="number" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} required />
           <Input label="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-          <Input label="Emoji" value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} />
+          <div className="space-y-1.5">
+            <label className="block text-sm font-medium text-slate-700">Photo</label>
+            {form.image_url ? (
+              <div className="relative">
+                <img src={form.image_url} alt="Item preview" className="h-40 w-full rounded-lg object-cover" />
+                <button
+                  type="button"
+                  onClick={() => setForm((f) => ({ ...f, image_url: null }))}
+                  className="absolute right-2 top-2 cursor-pointer rounded-full bg-white/90 p-1.5 text-slate-600 hover:bg-white hover:text-red-500"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ) : (
+              <label className="flex h-32 cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-slate-200 text-slate-400 hover:border-brand-300 hover:text-brand-500">
+                {uploadingImage ? (
+                  <span className="text-sm">Uploading...</span>
+                ) : (
+                  <>
+                    <span className="text-sm font-medium">Click to upload a photo</span>
+                    <span className="text-xs">JPG, PNG or WEBP, max 2MB</span>
+                  </>
+                )}
+                <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleImageUpload} disabled={uploadingImage} className="hidden" />
+              </label>
+            )}
+            {imageError && <p className="text-xs text-red-500">{imageError}</p>}
+          </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="secondary" type="button" onClick={() => setModalOpen(false)}>Cancel</Button>
             <Button type="submit">{editing ? 'Update' : 'Add Item'}</Button>

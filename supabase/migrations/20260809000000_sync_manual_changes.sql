@@ -24,6 +24,7 @@ where p.id = u.id and p.email is null;
 
 -- Add notification preferences
 alter table public.profiles add column if not exists notification_preferences jsonb default '{"orders": true, "marketing": false, "reports": true}'::jsonb;
+alter table public.menu_items add column if not exists image_url text;
 
 -- Add rating, prep-time, and returned tracking to orders
 alter table public.orders add column if not exists rating smallint check (rating >= 1 and rating <= 5);
