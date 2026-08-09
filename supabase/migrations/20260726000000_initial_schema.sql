@@ -106,17 +106,26 @@ alter table public.orders enable row level security;
 alter table public.order_items enable row level security;
 alter table public.notifications enable row level security;
 
+drop policy if exists "profiles readable by owner or staff" on public.profiles;
 create policy "profiles readable by owner or staff" on public.profiles for select using (id = auth.uid() or public.is_staff());
 -- Column grants keep the role server-controlled even when a user updates their profile.
 revoke update on public.profiles from authenticated;
 grant update (full_name, avatar, restaurant) on public.profiles to authenticated;
+drop policy if exists "users update their own profile" on public.profiles;
 create policy "users update their own profile" on public.profiles for update using (id = auth.uid()) with check (id = auth.uid());
+drop policy if exists "menu is publicly readable" on public.menu_items;
 create policy "menu is publicly readable" on public.menu_items for select to anon, authenticated using (true);
+drop policy if exists "staff manage menu" on public.menu_items;
 create policy "staff manage menu" on public.menu_items for all using (public.is_staff()) with check (public.is_staff());
+drop policy if exists "customers read own orders and staff read all" on public.orders;
 create policy "customers read own orders and staff read all" on public.orders for select using (customer_id = auth.uid() or public.is_staff());
+drop policy if exists "staff update orders" on public.orders;
 create policy "staff update orders" on public.orders for update using (public.is_staff()) with check (public.is_staff());
+drop policy if exists "customers read own order items and staff read all" on public.order_items;
 create policy "customers read own order items and staff read all" on public.order_items for select using (exists (select 1 from public.orders where orders.id = order_items.order_id and (orders.customer_id = auth.uid() or public.is_staff())));
+drop policy if exists "users read own notifications" on public.notifications;
 create policy "users read own notifications" on public.notifications for select using (user_id = auth.uid());
+drop policy if exists "users update own notifications" on public.notifications;
 create policy "users update own notifications" on public.notifications for update using (user_id = auth.uid()) with check (user_id = auth.uid());
 
 -- Atomically creates an order using server-side prices; clients never submit totals or prices.
