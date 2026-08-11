@@ -57,7 +57,7 @@ export default function Orders() {
         </div>
       </div>
 
-      <div data-gsap-in="zoom-flip" className="mt-4 grid gap-3 sm:grid-cols-5">
+      <div data-gsap-in="zoom-flip" className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
         {statuses.map((s) => {
           const count = orders.filter((o) => o.status === s).length
           return (

@@ -4,6 +4,7 @@
   import { useData } from "../../context/DataContext";
   import { useAuth } from "../../context/AuthContext";
   import { useTheme } from "../../context/ThemeContext";
+  import { RESTAURANT } from "../../config/resturant";
 
   export default function RestaurantLayout({ children }) {
     const { cart } = useData();
@@ -37,13 +38,13 @@
         <div className="overflow-hidden bg-surface-900 px-4 py-2 text-xs font-medium tracking-wide text-orange-100">
           <div className="flex flex-col gap-1">
             <div className="marquee-track flex w-max items-center whitespace-nowrap">
-              <span className="mx-4">Freshly made · Delivered fast · Open every day 11 AM – 11 PM</span>
-              <span className="mx-4" aria-hidden="true">Freshly made · Delivered fast · Open every day 11 AM – 11 PM</span>
-              <span className="mx-4" aria-hidden="true">Freshly made · Delivered fast · Open every day 11 AM – 11 PM</span>
-              <span className="mx-4" aria-hidden="true">Freshly made · Delivered fast · Open every day 11 AM – 11 PM</span>
-              <span className="mx-4" aria-hidden="true">Freshly made · Delivered fast · Open every day 11 AM – 11 PM</span>
-              <span className="mx-4" aria-hidden="true">Freshly made · Delivered fast · Open every day 11 AM – 11 PM</span>
-              <span className="mx-4" aria-hidden="true">Freshly made · Delivered fast · Open every day 11 AM – 11 PM</span>
+            <span className="mx-4">{RESTAURANT.tickerText}</span>
+            <span className="mx-4" aria-hidden="true">{RESTAURANT.tickerText}</span>
+            <span className="mx-4" aria-hidden="true">{RESTAURANT.tickerText}</span>
+            <span className="mx-4" aria-hidden="true">{RESTAURANT.tickerText}</span>
+            <span className="mx-4" aria-hidden="true">{RESTAURANT.tickerText}</span>
+            <span className="mx-4" aria-hidden="true">{RESTAURANT.tickerText}</span>
+            <span className="mx-4" aria-hidden="true">{RESTAURANT.tickerText}</span>
             </div>
           </div>
         </div>
@@ -52,11 +53,11 @@
             <div className="flex flex-wrap items-center justify-between gap-3">
               <Link to="/" className="flex items-center gap-2.5 transition-transform duration-200 hover:-translate-y-0.5">
                 <span className="grid h-10 w-10 place-items-center rounded-full bg-brand-500 text-xl shadow-sm transition-all duration-200 hover:scale-105 hover:shadow-md">
-                  🍔
-                </span>
-                <span className={`text-sm font-black tracking-tight transition-colors duration-200 sm:text-base ${isDark ? "text-slate-100 hover:text-brand-400" : "text-surface-900 hover:text-brand-600"}`}>
-                  BITE HOUSE<span className="text-brand-500">.</span>
-                </span>
+                {RESTAURANT.logoEmoji}
+              </span>
+              <span className={`text-sm font-black tracking-tight transition-colors duration-200 sm:text-base ${isDark ? "text-slate-100 hover:text-brand-400" : "text-surface-900 hover:text-brand-600"}`}>
+                {RESTAURANT.name}<span className="text-brand-500">.</span>
+              </span>
               </Link>
               <nav className={`hidden items-center gap-4 text-sm font-semibold md:flex ${isDark ? "text-slate-300" : "text-stone-600"}`}>
                 <NavLink
@@ -166,33 +167,33 @@
           <div className="mx-auto grid max-w-6xl gap-8 sm:grid-cols-3">
             <div>
               <p className="text-xl font-black">
-                BITE HOUSE<span className="text-brand-300">.</span>
-              </p>
-              <p className="mt-3 max-w-xs text-sm leading-6 text-orange-100/70">
-                Big flavour, honest ingredients, and comfort food made for
-                sharing.
-              </p>
-            </div>
-            <div>
-              <p className="font-bold">Visit us</p>
-              <p className="mt-3 text-sm leading-6 text-orange-100/70">
-                123 Main Street
-                <br />
-                Your City, Pakistan
-              </p>
-            </div>
-            <div>
-              <p className="font-bold">Opening hours</p>
-              <p className="mt-3 text-sm leading-6 text-orange-100/70">
-                Every day
-                <br />
-                11:00 AM – 11:00 PM
-              </p>
-            </div>
+              {RESTAURANT.name}<span className="text-brand-300">.</span>
+            </p>
+            <p className="mt-3 max-w-xs text-sm leading-6 text-orange-100/70">
+              Big flavour, honest ingredients, and comfort food made for
+              sharing.
+            </p>
           </div>
-          <p className="mx-auto mt-10 max-w-6xl border-t border-white/10 pt-5 text-xs text-orange-100/50">
-            © 2026 Bite House. All rights reserved.
-          </p>
+          <div>
+            <p className="font-bold">Visit us</p>
+            <p className="mt-3 text-sm leading-6 text-orange-100/70">
+              {RESTAURANT.address.line1}
+              <br />
+              {RESTAURANT.address.line2}
+            </p>
+          </div>
+          <div>
+            <p className="font-bold">Opening hours</p>
+            <p className="mt-3 text-sm leading-6 text-orange-100/70">
+              {RESTAURANT.hours.days}
+              <br />
+              {RESTAURANT.hours.time}
+            </p>
+          </div>
+        </div>
+        <p className="mx-auto mt-10 max-w-6xl border-t border-white/10 pt-5 text-xs text-orange-100/50">
+          © {new Date().getFullYear()} {RESTAURANT.name}. All rights reserved.
+        </p>
         </footer>
       </div>
     );

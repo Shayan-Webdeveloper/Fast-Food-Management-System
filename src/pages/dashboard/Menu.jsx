@@ -85,11 +85,18 @@ const handleImageUpload = async (e) => {
   }
   const handleSave = (e) => {
     e.preventDefault()
-    const data = { ...form, price: parseFloat(form.price) }
+    const parsedPrice = parseFloat(form.price)
+    if (isNaN(parsedPrice) || parsedPrice <= 0) {
+      showToast('Price must be greater than $0', 'error')
+      return
+    }
+    const data = { ...form, price: parsedPrice }
     if (editing) {
       updateMenuItem(editing.id, data)
+      showToast(`${form.name} updated`)
     } else {
       addMenuItem(data)
+      showToast(`${form.name} added to menu`)
     }
     setModalOpen(false)
   }
