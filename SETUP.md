@@ -5,6 +5,7 @@
 - **You control the Vercel deployment.** The live website is deployed under your Vercel account. This is your leverage — if a client stops paying, you can pause or delete their deployment and their site goes offline.
 - **The client owns their Supabase project.** Their menu, orders, and customer data live in their own account, under their control. You never hold their data hostage — only the deployed website.
 - Practically: keep every customer's Vercel project under your own Vercel team/account, not theirs. Give them Supabase access (their project), but not Vercel access.
+- **Admin access is not self-serve.** A client cannot promote themselves to admin from inside the app — only you can, by running the SQL in Step 9. Don't forget to do this for every new customer, or they'll be stuck as a regular customer account.
 
 This is a step-by-step checklist for deploying a fresh instance of this app for a new customer. Follow it top to bottom — nothing should need guesswork.
 
@@ -38,6 +39,8 @@ In Supabase Dashboard → SQL Editor, run each file inside `supabase/migrations/
 
 Paste each file's full contents into a new SQL Editor query and click Run, one at a time. All of these are written to be safe to re-run, so don't worry if something needs re-running.
 
+**Note:** file #3 seeds ~100 generic placeholder menu items (burgers, pizza, shakes, etc.) so the app isn't empty during setup. This is **not the client's real menu** — see Step 8b to clear it before launch.
+
 ## 4. Create the storage bucket for menu photos
 
 Supabase Dashboard → Storage → Create bucket:
@@ -46,25 +49,29 @@ Supabase Dashboard → Storage → Create bucket:
 - File size limit: `2 MB`
 - Allowed MIME types: `image/jpeg, image/png, image/webp`
 
-Then run this in SQL Editor to set the bucket's access policies:
+Then run this in SQL Editor to set the bucket's access policies (safe to re-run, drops old policies first):
 
 ```sql
+drop policy if exists "menu images are publicly readable" on storage.objects;
 create policy "menu images are publicly readable"
 on storage.objects for select
 to anon, authenticated
 using (bucket_id = 'menu-images');
 
+drop policy if exists "staff can upload menu images" on storage.objects;
 create policy "staff can upload menu images"
 on storage.objects for insert
 to authenticated
 with check (bucket_id = 'menu-images' and public.is_staff());
 
+drop policy if exists "staff can update menu images" on storage.objects;
 create policy "staff can update menu images"
 on storage.objects for update
 to authenticated
 using (bucket_id = 'menu-images' and public.is_staff())
 with check (bucket_id = 'menu-images' and public.is_staff());
 
+drop policy if exists "staff can delete menu images" on storage.objects;
 create policy "staff can delete menu images"
 on storage.objects for delete
 to authenticated
@@ -96,8 +103,7 @@ Fill in:
 
 ## 7. Set the redirect URL for password resets
 
-Supabase Dashboard → Authentication → URL Configuration → Redirect URLs, add: https://<their-vercel-domain>/reset-password
-
+Supabase Dashboard → Authentication → URL Configuration → Redirect URLs, add:https://<their-vercel-domain>/reset-password
 (You'll get the actual domain in Step 10 — come back and add it after deploying.)
 
 ## 8. Customize branding
@@ -117,6 +123,10 @@ Also update the brand color in `src/index.css`, inside the `@theme` block:
 
 Optionally update `index.html`'s `<title>` and meta description, and swap the favicon at `public/favicon.svg`.
 
+### 8b. Replace the seed menu
+
+Before launch, delete the placeholder menu items and add the client's real menu (via the admin dashboard's Menu Management page, with real photos uploaded). Don't ship a burger restaurant's placeholder menu to a client who sells sushi.
+
 ## 9. Set the first admin user
 
 1. Have the customer register a normal account through the app's `/register` page.
@@ -126,23 +136,32 @@ Optionally update `index.html`'s `<title>` and meta description, and swap the fa
 update public.profiles set role = 'admin' where email = 'their-email@example.com';
 ```
 
-## 10. Deploy to Vercel
+## 10. Test locally before deploying
+
+1. Create a `.env.local` file in the project root:VITE_SUPABASE_URL=<their project URL from Step 5>
+VITE_SUPABASE_ANON_KEY=<their anon key from Step 5>
+**Important:** do not wrap these values in quotes — a stray `"` around the whole file will silently break Supabase's connection and the app will fail to load with an env-var error.
+2. Run:
+```bash
+   npm install
+   npm run dev
+```
+3. Open the local URL and click through the app — register, log in as admin, add a menu item, place a test order. Catch obvious problems here, before they're live on a customer-facing URL.
+
+## 11. Deploy to Vercel
 
 1. Push this customer's repo to GitHub (if not already).
 2. Go to https://vercel.com → New Project → import the repo.
-3. In the project's Environment Variables settings, add:
-VITE_SUPABASE_URL=<their project URL from Step 5>
-VITE_SUPABASE_ANON_KEY=<their anon key from Step 5>
-
-
+3. In the project's Environment Variables settings, add the same two variables from Step 10 (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`) — same rule applies, no wrapping quotes.
 4. Deploy. Vercel gives you a live URL (e.g., `customer-name.vercel.app`).
 5. Go back to Step 7 and add this real URL to Supabase's Redirect URLs.
 6. (Optional) Connect a custom domain in Vercel's project settings if the customer has one.
 
-## 11. Final check
+## 12. Final check
 
 - [ ] Register a test customer account, confirm the email arrives
 - [ ] Log in as admin, add a menu item with a real photo
 - [ ] Place a test order as a customer, confirm it shows on the Orders dashboard with delivery details
 - [ ] Test password reset end to end
 - [ ] Check the site on mobile
+- [ ] Confirm placeholder seed menu items have been removed and replaced with the real menu
