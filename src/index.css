@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, [data-theme="dark"], .dark *, [data-theme="dark"] *));
+
 @theme {
   --breakpoint-3xl: 125rem;
   --color-brand-50: #fff7ed;

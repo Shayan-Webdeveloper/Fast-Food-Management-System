@@ -18,11 +18,39 @@ export default function Checkout() {
   const { cart, cartTotal, updateCartQty, removeFromCart, placeOrder } =
     useData();
   const navigate = useNavigate();
-const [payment, setPayment] = useState('cash'); const [placing, setPlacing] = useState(false); const [error, setError] = useState(''); const [done, setDone] = useState(null)
-  const [deliveryName, setDeliveryName] = useState(user?.name || ''); const [deliveryPhone, setDeliveryPhone] = useState(''); const [deliveryAddress, setDeliveryAddress] = useState('')
+  const [payment, setPayment] = useState("cash");
+  const [placing, setPlacing] = useState(false);
+  const [error, setError] = useState("");
+  const [done, setDone] = useState(null);
+  const [deliveryName, setDeliveryName] = useState(user?.name || "");
+  const [deliveryPhone, setDeliveryPhone] = useState("");
+  const [deliveryAddress, setDeliveryAddress] = useState("");
   const delivery = cart.length ? 2.5 : 0;
   const total = cartTotal + delivery;
-  const submit = async (event) => { event.preventDefault(); if (!user) { navigate('/login', { state: { from: { pathname: '/checkout' } } }); return } setPlacing(true); setError(''); try { const order = await placeOrder(cart, payment, { name: deliveryName, phone: deliveryPhone, address: deliveryAddress }); setDone(order) } catch (issue) { setError(friendlyError(issue.message) || 'We could not place your order. Please try again.') } finally { setPlacing(false) } }
+  const submit = async (event) => {
+    event.preventDefault();
+    if (!user) {
+      navigate("/login", { state: { from: { pathname: "/checkout" } } });
+      return;
+    }
+    setPlacing(true);
+    setError("");
+    try {
+      const order = await placeOrder(cart, payment, {
+        name: deliveryName,
+        phone: deliveryPhone,
+        address: deliveryAddress,
+      });
+      setDone(order);
+    } catch (issue) {
+      setError(
+        friendlyError(issue.message) ||
+          "We could not place your order. Please try again.",
+      );
+    } finally {
+      setPlacing(false);
+    }
+  };
   if (done)
     return (
       <div className="mx-auto max-w-xl px-4 py-20 text-center">
@@ -74,10 +102,28 @@ const [payment, setPayment] = useState('cash'); const [placing, setPlacing] = us
               </p>
             )}
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
-             <Input label="Full name" value={deliveryName} onChange={(e) => setDeliveryName(e.target.value)} required /><Input label="Phone number" placeholder="03XX XXX XXXX" value={deliveryPhone} onChange={(e) => setDeliveryPhone(e.target.value)} required />
+              <Input
+                label="Full name"
+                value={deliveryName}
+                onChange={(e) => setDeliveryName(e.target.value)}
+                required
+              />
+              <Input
+                label="Phone number"
+                placeholder="03XX XXX XXXX"
+                value={deliveryPhone}
+                onChange={(e) => setDeliveryPhone(e.target.value)}
+                required
+              />
             </div>
             <div className="mt-4">
-              <Input label="Delivery address" placeholder="House / street / area" value={deliveryAddress} onChange={(e) => setDeliveryAddress(e.target.value)} required />
+              <Input
+                label="Delivery address"
+                placeholder="House / street / area"
+                value={deliveryAddress}
+                onChange={(e) => setDeliveryAddress(e.target.value)}
+                required
+              />
             </div>
           </div>
           <div className="border-t border-[#eee3d8] pt-6">
@@ -85,17 +131,17 @@ const [payment, setPayment] = useState('cash'); const [placing, setPlacing] = us
             <div className="mt-3 grid grid-cols-2 gap-3">
               <button
                 type="button"
-                onClick={() => setPayment("cash")}
-                className={`rounded-xl border p-3 cursor-pointer text-left text-sm font-bold ${payment === "cash" ? "border-brand-500 bg-brand-50 text-brand-800" : "border-[#e5d6c6]"}`}
-              >
-                Cash on delivery
-              </button>
-              <button
-                type="button"
                 onClick={() => setPayment("card")}
                 className={`rounded-xl border p-3 cursor-pointer text-left text-sm font-bold ${payment === "card" ? "border-brand-500 bg-brand-50 text-brand-800" : "border-[#e5d6c6]"}`}
               >
                 Card on delivery
+              </button>
+              <button
+                type="button"
+                onClick={() => setPayment("cash")}
+                className={`rounded-xl border p-3 cursor-pointer text-left text-sm font-bold ${payment === "cash" ? "border-brand-500 bg-brand-50 text-brand-800" : "border-[#e5d6c6]"}`}
+              >
+                Cash on delivery
               </button>
             </div>
           </div>

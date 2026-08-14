@@ -21,6 +21,7 @@ import MenuManagement from './pages/dashboard/Menu'
 import Analytics from './pages/dashboard/Analytics'
 import Customers from './pages/dashboard/Customers'
 import Settings from './pages/dashboard/Settings'
+import Notifications from './pages/dashboard/Notifications'
 import OrderFood from './pages/dashboard/OrderFood'
 import DashboardCheckout from './pages/dashboard/DashboardCheckout'
 import MyOrders from './pages/dashboard/MyOrders'
@@ -29,6 +30,8 @@ import RestaurantLayout from './components/layout/RestaurantLayout'
 import MenuPage from './pages/Menu'
 import ProductPage from './pages/Product'
 import Checkout from './pages/Checkout'
+import PrivacyPolicy from './pages/PrivacyPolicy'
+import TermsOfService from './pages/TermsOfService'
 
 function DashboardWrapper({ children, roles }) {
   return (
@@ -94,6 +97,8 @@ function AppRoutes() {
       <Route path="/menu" element={<RestaurantLayout><MenuPage /></RestaurantLayout>} />
       <Route path="/menu/:id" element={<RestaurantLayout><ProductPage /></RestaurantLayout>} />
       <Route path="/checkout" element={<RestaurantLayout><Checkout /></RestaurantLayout>} />
+      <Route path="/privacy" element={<RestaurantLayout><PrivacyPolicy /></RestaurantLayout>} />
+      <Route path="/terms" element={<RestaurantLayout><TermsOfService /></RestaurantLayout>} />
       <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
       <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
       <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
@@ -105,6 +110,7 @@ function AppRoutes() {
       <Route path="/dashboard/analytics" element={<DashboardWrapper><Analytics /></DashboardWrapper>} />
       <Route path="/dashboard/customers" element={<DashboardWrapper roles={['admin']}><Customers /></DashboardWrapper>} />
       <Route path="/dashboard/settings" element={<DashboardWrapper><Settings /></DashboardWrapper>} />
+      <Route path="/dashboard/notifications" element={<DashboardWrapper><Notifications /></DashboardWrapper>} />
       <Route path="/dashboard/order" element={<DashboardWrapper><OrderFood /></DashboardWrapper>} />
       <Route path="/dashboard/checkout" element={<DashboardWrapper><DashboardCheckout /></DashboardWrapper>} />
       <Route path="/dashboard/my-orders" element={<DashboardWrapper><MyOrders /></DashboardWrapper>} />

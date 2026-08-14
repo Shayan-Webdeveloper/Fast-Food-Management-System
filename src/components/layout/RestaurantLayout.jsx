@@ -191,9 +191,13 @@
             </p>
           </div>
         </div>
-        <p className="mx-auto mt-10 max-w-6xl border-t border-white/10 pt-5 text-xs text-orange-100/50">
-          © {new Date().getFullYear()} {RESTAURANT.name}. All rights reserved.
-        </p>
+        <div className="mx-auto mt-10 flex max-w-6xl flex-col items-center justify-between gap-3 border-t border-white/10 pt-5 text-xs text-orange-100/50 sm:flex-row">
+          <p>© {new Date().getFullYear()} {RESTAURANT.name}. All rights reserved.</p>
+          <div className="flex gap-4">
+            <Link to="/privacy" className="hover:text-orange-100">Privacy Policy</Link>
+            <Link to="/terms" className="hover:text-orange-100">Terms of Service</Link>
+          </div>
+        </div>
         </footer>
       </div>
     );

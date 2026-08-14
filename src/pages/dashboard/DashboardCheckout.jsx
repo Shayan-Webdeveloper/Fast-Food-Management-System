@@ -11,7 +11,7 @@ export default function DashboardCheckout() {
   const [deliveryName, setDeliveryName] = useState('')
   const [deliveryPhone, setDeliveryPhone] = useState('')
   const [deliveryAddress, setDeliveryAddress] = useState('')
-  const [payment, setPayment] = useState('card')
+  const [payment, setPayment] = useState('cash')
   const [placing, setPlacing] = useState(false)
   const [error, setError] = useState('')
   const [done, setDone] = useState(null)
@@ -81,17 +81,17 @@ export default function DashboardCheckout() {
             <div className="mt-3 grid grid-cols-2 gap-3">
               <button
                 type="button"
-                onClick={() => setPayment('card')}
-                className={`cursor-pointer rounded-xl border p-3 text-left text-sm font-bold ${payment === 'card' ? 'border-brand-500 bg-brand-50 text-brand-800' : 'border-slate-200'}`}
-              >
-                Card on delivery
-              </button>
-              <button
-                type="button"
                 onClick={() => setPayment('cash')}
                 className={`cursor-pointer rounded-xl border p-3 text-left text-sm font-bold ${payment === 'cash' ? 'border-brand-500 bg-brand-50 text-brand-800' : 'border-slate-200'}`}
               >
                 Cash on delivery
+              </button>
+              <button
+                type="button"
+                onClick={() => setPayment('card')}
+                className={`cursor-pointer rounded-xl border p-3 text-left text-sm font-bold ${payment === 'card' ? 'border-brand-500 bg-brand-50 text-brand-800' : 'border-slate-200'}`}
+              >
+                Card on delivery
               </button>
             </div>
           </Card>

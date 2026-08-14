@@ -43,13 +43,30 @@ const [customerProfiles, setCustomerProfiles] = useState([])
     if (!user) return
     const [orderResult, notificationResult, profileResult] = await Promise.all([
       supabase.from('orders').select('*, profiles!orders_customer_id_fkey(full_name, email), order_items(quantity, unit_price, menu_items(id, name))').order('created_at', { ascending: false }),
-      supabase.from('notifications').select('*').order('created_at', { ascending: false }),
+      supabase.from('notifications').select('*, orders(order_number, total, payment_method, delivery_name, delivery_phone, delivery_address, profiles!orders_customer_id_fkey(full_name, email), order_items(quantity, unit_price, menu_items(name)))').order('created_at', { ascending: false }),
       supabase.from('profiles').select('id, full_name, email, created_at').eq('role', 'customer').order('created_at', { ascending: false }),
     ])
     const error = orderResult.error || notificationResult.error || profileResult.error
     if (error) { console.error('Unable to load data', error); return }
     setOrders(orderResult.data.map(mapOrder))
-    setNotifications(notificationResult.data)
+    setNotifications(notificationResult.data.map((n) => ({
+      ...n,
+      relatedOrder: n.orders ? {
+        orderNumber: n.orders.order_number,
+        total: Number(n.orders.total),
+        paymentMethod: n.orders.payment_method,
+        deliveryName: n.orders.delivery_name,
+        deliveryPhone: n.orders.delivery_phone,
+        deliveryAddress: n.orders.delivery_address,
+        customerName: n.orders.profiles?.full_name,
+        customerEmail: n.orders.profiles?.email,
+        items: (n.orders.order_items ?? []).map((oi) => ({
+          name: oi.menu_items?.name,
+          qty: oi.quantity,
+          price: Number(oi.unit_price),
+        })),
+      } : null,
+    })))
     setCustomerProfiles(profileResult.data)
   }, [user])
 
