@@ -95,7 +95,6 @@ export default function DashboardCheckout() {
               </button>
             </div>
           </Card>
-
           {error && <p className="text-sm text-red-600">{error}</p>}
 
           <Button type="submit" disabled={placing} className="w-full py-3">

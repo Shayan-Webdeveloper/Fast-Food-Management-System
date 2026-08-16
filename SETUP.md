@@ -138,7 +138,11 @@ update public.profiles set role = 'admin' where email = 'their-email@example.com
 
 ## 10. Test locally before deploying
 
-1. Create a `.env.local` file in the project root:VITE_SUPABASE_URL=<their project URL from Step 5>
+1. Copy `.env.example` to a new file named `.env.local` in the project root:
+```bash
+   cp .env.example .env.local
+```
+   Then fill in the real values:VITE_SUPABASE_URL=<their project URL from Step 5>
 VITE_SUPABASE_ANON_KEY=<their anon key from Step 5>
 **Important:** do not wrap these values in quotes — a stray `"` around the whole file will silently break Supabase's connection and the app will fail to load with an env-var error.
 2. Run:
