@@ -4,9 +4,9 @@ import * as Sentry from '@sentry/react'
 import './index.css'
 import App from './App.jsx'
 
-Sentry.init({
-  dsn: 'https://b44bbf9d218edf0b5051b536bf6c9a88@o4511919018344448.ingest.de.sentry.io/4511919029878864',
-})
+// Sentry.init({
+//   dsn: 'https://b44bbf9d218edf0b5051b536bf6c9a88@o4511919018344448.ingest.de.sentry.io/4511919029878864',
+// })
 
 function FallbackUI({ resetError }) {
   return (

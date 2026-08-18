@@ -228,3 +228,28 @@ button:disabled,
   background: #cbd5e1;
   border-radius: 999px;
 }
+@media print {
+  aside,
+  header {
+    display: none !important;
+  }
+  .print-page-break {
+    break-before: page;
+    page-break-before: always;
+  }
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .dashboard-main {
+    padding: 0 !important;
+  }
+  @page {
+    size: 80mm 40mm;
+    margin: 0;
+  }
+  html, body {
+    width: 80mm;
+    height: 40mm;
+  }
+}

@@ -102,12 +102,19 @@ export default function Notifications() {
                     </div>
                   </div>
 
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Delivery</p>
-                    <p className="mt-1 text-sm font-semibold text-slate-900">Name: {selected.relatedOrder.deliveryName}</p>
-                    <p className="text-sm text-slate-500">Contact:{selected.relatedOrder.deliveryPhone}</p>
-                    <p className="text-sm text-slate-500">Address:{selected.relatedOrder.deliveryAddress}</p>
-                  </div>
+                  {selected.relatedOrder.orderType === 'counter' ? (
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Order type</p>
+                      <p className="mt-1 text-sm font-semibold text-slate-900">Counter sale (paid in-store)</p>
+                    </div>
+                  ) : (
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Delivery</p>
+                      <p className="mt-1 text-sm font-semibold text-slate-900">Name: {selected.relatedOrder.deliveryName}</p>
+                      <p className="text-sm text-slate-500">Contact: {selected.relatedOrder.deliveryPhone}</p>
+                      <p className="text-sm text-slate-500">Address: {selected.relatedOrder.deliveryAddress}</p>
+                    </div>
+                  )}
 
                   <div>
                     <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Items</p>

@@ -3,16 +3,18 @@ import { useRevealAnimation } from '../../hooks/useRevealAnimation'
 import { Search, Filter } from 'lucide-react'
 import { useData } from '../../context/DataContext'
 import { useToast } from '../../context/ToastContext'
-import { Card, Badge, Select } from '../../components/ui'
+import { Card, Badge, Select, Modal, Button } from '../../components/ui'
 import { CustomSelect } from '../../components/ui/CustomSelect'
 import { ORDER_STATUS_CONFIG } from '../../data/mockData'
 
 export default function Orders() {
-  const { orders, updateOrderStatus, markReturned, loading } = useData()
+  const { orders, updateOrderStatus, markReturned, voidOrder, loading } = useData()
   const { showToast } = useToast()
   const pageRef = useRevealAnimation(!!orders)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [voidTarget, setVoidTarget] = useState(null)
+  const [voiding, setVoiding] = useState(false)
 
   if (loading) {
     return (
@@ -21,6 +23,19 @@ export default function Orders() {
         <p className="mt-4 text-sm text-slate-500">Loading orders...</p>
       </div>
     )
+  }
+const handleVoidConfirm = async () => {
+    if (!voidTarget) return
+    setVoiding(true)
+    try {
+      await voidOrder(voidTarget.id)
+      showToast(`Order ${voidTarget.id} voided`)
+      setVoidTarget(null)
+    } catch (error) {
+      showToast(error.message || 'Could not void order', 'error')
+    } finally {
+      setVoiding(false)
+    }
   }
 
   const filtered = orders.filter((o) => {
@@ -92,7 +107,14 @@ export default function Orders() {
               {filtered.map((order) => (
                 <tr key={order.id} className="border-t border-slate-100">
                   <td className="px-5 py-3 font-medium whitespace-nowrap">{order.id}</td>
-                  <td className="px-5 py-3 whitespace-nowrap">{order.customerName}</td>
+                  <td className="px-5 py-3 whitespace-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      {order.customerName}
+                      {order.orderType === 'counter' && (
+                        <span className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold uppercase text-slate-500">Counter</span>
+                      )}
+                    </div>
+                  </td>
                   <td className="px-5 py-3">
                     <div className="min-w-[160px] max-w-[240px] text-xs text-slate-500">
                       {order.items.map((i) => (
@@ -140,6 +162,14 @@ export default function Orders() {
                         </button>
                       )
                     )}
+                    {order.orderType === 'counter' && order.status !== 'cancelled' && (
+                      <button
+                        onClick={() => setVoidTarget(order)}
+                        className="mt-2 flex items-center gap-1 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-100 cursor-pointer"
+                      >
+                        Void Sale
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -150,6 +180,26 @@ export default function Orders() {
           )}
         </div>
       </Card>
+
+      <Modal open={!!voidTarget} onClose={() => setVoidTarget(null)} title="Void this order?">
+        {voidTarget && (
+          <div className="space-y-4">
+            <p className="text-sm text-slate-600">
+              This will cancel order <span className="font-semibold text-slate-900">{voidTarget.id}</span> and restore any tracked stock that was deducted. This cannot be undone.
+            </p>
+            <div className="rounded-lg bg-slate-50 p-3 text-sm">
+              <p className="font-semibold text-slate-900">${voidTarget.total.toFixed(2)}</p>
+              <p className="text-slate-500">{voidTarget.items.map((i) => `${i.qty}x ${i.name}`).join(', ')}</p>
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="secondary" onClick={() => setVoidTarget(null)}>Cancel</Button>
+              <Button variant="danger" onClick={handleVoidConfirm} disabled={voiding}>
+                {voiding ? 'Voiding...' : 'Void Order'}
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   )
 }

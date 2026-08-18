@@ -22,6 +22,11 @@ import Analytics from './pages/dashboard/Analytics'
 import Customers from './pages/dashboard/Customers'
 import Settings from './pages/dashboard/Settings'
 import Notifications from './pages/dashboard/Notifications'
+import POS from './pages/dashboard/POS'
+import PrintBarcode from './pages/dashboard/PrintBarcode'
+import BatchBarcodes from './pages/dashboard/BatchBarcodes'
+import Inventory from './pages/dashboard/Inventory'
+import DailySales from './pages/dashboard/DailySales'
 import OrderFood from './pages/dashboard/OrderFood'
 import DashboardCheckout from './pages/dashboard/DashboardCheckout'
 import MyOrders from './pages/dashboard/MyOrders'
@@ -111,6 +116,11 @@ function AppRoutes() {
       <Route path="/dashboard/customers" element={<DashboardWrapper roles={['admin']}><Customers /></DashboardWrapper>} />
       <Route path="/dashboard/settings" element={<DashboardWrapper><Settings /></DashboardWrapper>} />
       <Route path="/dashboard/notifications" element={<DashboardWrapper><Notifications /></DashboardWrapper>} />
+      <Route path="/dashboard/pos" element={<DashboardWrapper><POS /></DashboardWrapper>} />
+      <Route path="/dashboard/menu/:id/barcode" element={<DashboardWrapper><PrintBarcode /></DashboardWrapper>} />
+      <Route path="/dashboard/menu/barcodes" element={<DashboardWrapper><BatchBarcodes /></DashboardWrapper>} />
+      <Route path="/dashboard/inventory" element={<DashboardWrapper><Inventory /></DashboardWrapper>} />
+      <Route path="/dashboard/daily-sales" element={<DashboardWrapper><DailySales /></DashboardWrapper>} />
       <Route path="/dashboard/order" element={<DashboardWrapper><OrderFood /></DashboardWrapper>} />
       <Route path="/dashboard/checkout" element={<DashboardWrapper><DashboardCheckout /></DashboardWrapper>} />
       <Route path="/dashboard/my-orders" element={<DashboardWrapper><MyOrders /></DashboardWrapper>} />

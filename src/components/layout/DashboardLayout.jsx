@@ -1,6 +1,6 @@
   import { NavLink, useNavigate } from 'react-router-dom'
   import {
-    LayoutDashboard, ShoppingBag, UtensilsCrossed, BarChart3, Users,
+    LayoutDashboard, ShoppingBag, UtensilsCrossed, BarChart3, Users, Package, Receipt,
     Settings, UserCircle, LogOut, Menu as MenuIcon, X, Bell, ShoppingCart, Home, Moon, Sun,
     PanelLeftClose, PanelLeftOpen
   } from 'lucide-react'
@@ -12,8 +12,11 @@
 
 const staffNav = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Overview' },
+  { to: '/dashboard/pos', icon: ShoppingCart, label: 'POS' },
   { to: '/dashboard/orders', icon: ShoppingBag, label: 'Orders' },
   { to: '/dashboard/menu', icon: UtensilsCrossed, label: 'Menu' },
+  { to: '/dashboard/inventory', icon: Package, label: 'Inventory' },
+  { to: '/dashboard/daily-sales', icon: Receipt, label: 'Daily Sales' },
   { to: '/dashboard/analytics', icon: BarChart3, label: 'Analytics' },
   { to: '/dashboard/customers', icon: Users, label: 'Customers', adminOnly: true },
   { to: '/dashboard/notifications', icon: Bell, label: 'Notifications' },

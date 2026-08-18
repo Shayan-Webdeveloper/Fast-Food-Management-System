@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus, Pencil, Trash2, Search } from 'lucide-react'
+import { Plus, Pencil, Trash2, Search, Printer } from 'lucide-react'
 import { useData } from '../../context/DataContext'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
@@ -12,7 +12,7 @@ import { useToast } from '../../context/ToastContext'
 
 const CATEGORIES = ['Burgers', 'Wraps', 'Pizza', 'Sides', 'Drinks', 'Appetizers']
 
-const emptyItem = { name: '', category: 'Burgers', price: '', description: '', image: '🍔', available: true }
+const emptyItem = { name: '', category: 'Burgers', price: '', description: '', image: '🍔', available: true, track_inventory: false, stock_quantity: '', low_stock_threshold: 5, barcode: '' }
 
 export default function MenuManagement() {
   const { menu, addMenuItem, updateMenuItem, deleteMenuItem, loading } = useData()
@@ -90,7 +90,17 @@ const handleImageUpload = async (e) => {
       showToast('Price must be greater than $0', 'error')
       return
     }
-    const data = { ...form, price: parsedPrice }
+    if (form.track_inventory && (form.stock_quantity === '' || isNaN(parseInt(form.stock_quantity)))) {
+      showToast('Enter a stock quantity for tracked items', 'error')
+      return
+    }
+    const data = {
+      ...form,
+      price: parsedPrice,
+      stock_quantity: form.track_inventory ? parseInt(form.stock_quantity) : null,
+      low_stock_threshold: form.track_inventory ? (parseInt(form.low_stock_threshold) || 5) : 5,
+      barcode: form.barcode?.trim() || null,
+    }
     if (editing) {
       updateMenuItem(editing.id, data)
       showToast(`${form.name} updated`)
@@ -113,7 +123,12 @@ const handleImageUpload = async (e) => {
           <p className="mt-1 text-slate-500">{menu.length} items · {menu.filter((m) => m.available).length} available</p>
         </div>
         {isAdmin && (
-          <Button onClick={openAdd}><Plus className="h-4 w-4" /> Add Item</Button>
+          <div className="flex gap-2">
+            <Link to="/dashboard/menu/barcodes">
+              <Button variant="secondary"><Printer className="h-4 w-4" /> Print Labels</Button>
+            </Link>
+            <Button onClick={openAdd}><Plus className="h-4 w-4" /> Add Item</Button>
+          </div>
         )}
       </div>
 
@@ -152,11 +167,16 @@ const handleImageUpload = async (e) => {
               </div>
               <p className="mt-2 line-clamp-2 text-xs text-slate-500">{item.description}</p>
               <div className="mt-auto pt-3 flex items-center justify-between">
-                <div className="flex gap-1">
+                <div className="flex flex-wrap gap-1">
                   {item.popular && <Badge variant="brand">Popular</Badge>}
                   <Badge variant={item.available ? 'success' : 'danger'}>
                     {item.available ? 'Available' : 'Unavailable'}
                   </Badge>
+                  {item.track_inventory && (
+                    <Badge variant={item.stock_quantity <= item.low_stock_threshold ? 'warning' : 'default'}>
+                      Stock: {item.stock_quantity}
+                    </Badge>
+                  )}
                 </div>
                 {isAdmin && (
                   <div className="flex gap-1">
@@ -166,6 +186,11 @@ const handleImageUpload = async (e) => {
                     <button onClick={() => openEdit(item)} className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-brand-500 cursor-pointer">
                       <Pencil className="h-3.5 w-3.5" />
                     </button>
+                    {item.barcode && (
+                      <Link to={`/dashboard/menu/${item.id}/barcode`} className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-brand-500 cursor-pointer" title="Print barcode">
+                        <Printer className="h-3.5 w-3.5" />
+                      </Link>
+                    )}
                     <button
                       onClick={async () => {
                         try {
@@ -195,6 +220,58 @@ const handleImageUpload = async (e) => {
           </Select>
           <Input label="Price ($)" type="number" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} required />
           <Input label="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+
+          <div className="rounded-lg border border-slate-200 p-3">
+            <label className="flex cursor-pointer items-center justify-between">
+              <span className="text-sm font-medium text-slate-700">Track inventory for this item</span>
+              <input
+                type="checkbox"
+                checked={form.track_inventory}
+                onChange={(e) => setForm({ ...form, track_inventory: e.target.checked })}
+                className="h-4 w-4 cursor-pointer rounded border-slate-300 text-brand-500 focus:ring-brand-500"
+              />
+            </label>
+
+            {form.track_inventory && (
+              <div className="mt-3 space-y-3 border-t border-slate-100 pt-3">
+                <Input
+                  label="Stock quantity"
+                  type="number"
+                  min="0"
+                  value={form.stock_quantity}
+                  onChange={(e) => setForm({ ...form, stock_quantity: e.target.value })}
+                  placeholder="e.g. 50"
+                />
+                <Input
+                  label="Low stock alert threshold"
+                  type="number"
+                  min="0"
+                  value={form.low_stock_threshold}
+                  onChange={(e) => setForm({ ...form, low_stock_threshold: e.target.value })}
+                  placeholder="e.g. 5"
+                />
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium text-slate-700">Barcode</label>
+                  <div className="flex gap-2">
+                    <input
+                      value={form.barcode}
+                      onChange={(e) => setForm({ ...form, barcode: e.target.value })}
+                      placeholder="Scan, type, or auto-generate"
+                      className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setForm((f) => ({ ...f, barcode: `${Date.now()}`.slice(-12) }))}
+                      className="shrink-0 cursor-pointer whitespace-nowrap rounded-lg border border-slate-200 px-3 text-sm font-semibold text-slate-600 hover:bg-slate-50"
+                    >
+                      Generate
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className="space-y-1.5">
             <label className="block text-sm font-medium text-slate-700">Photo</label>
             {form.image_url ? (
